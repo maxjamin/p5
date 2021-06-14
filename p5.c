@@ -300,117 +300,112 @@ int round_robin_algorithm(Process *list_of_process
 		{
 			int inc_through_list = 0;
 			
-
-				//find start time of process in the front of queue
-				if(queue_processes[inc_through_list].first_started == 0)
+			//find start time of process in the front of queue
+			if(queue_processes[inc_through_list].first_started == 0)
+			{
+				int i = find_inc_in_list(list_of_process
+				, queue_processes[inc_through_list].arrival_time
+				, size_of_process_list);
+				
+				if(list_of_process[i].first_started != 1)
 				{
-					int i = find_inc_in_list(list_of_process
+					list_of_process[i].arrive_time = st_for_fc_fs;
+					list_of_process[i].first_started = 1;
+				}
+			}
+
+			//if time_left is small or equal to time quantum, remove from queue
+			if(queue_processes[inc_through_list].time_left <= time_quantum_parameter) 
+			{
+
+				st_for_fc_fs += queue_processes[inc_through_list].time_left;
+				queue_processes[inc_through_list].time_left = 0;
+
+				//find end time
+				int i = find_inc_in_list(list_of_process
 					, queue_processes[inc_through_list].arrival_time
 					, size_of_process_list);
-					
-					if(list_of_process[i].first_started != 1)
+
+				list_of_process[i].end_time = st_for_fc_fs;
+
+				//If any new processes have been allowed add them to the queue now
+				inc_list = start_of_queue;
+				while(inc_list < size_of_process_list)
+				{
+					//make sure that the processes is not already on the list
+					if(list_of_process[inc_list].arrival_time <= st_for_fc_fs 
+						&& check_list_for_value(list_of_process, inc_list, size_of_process_list))
 					{
-						list_of_process[i].arrive_time = st_for_fc_fs;
-						list_of_process[i].first_started = 1;
+
+						j = inc_queu_proc;
+						queue_processes[inc_queu_proc] = list_of_process[inc_list];
+
+						inc_queu_proc++;
+						start_of_queue++;	
 					}
+					inc_list++;
 				}
 
-				//if time_left is small or equal to time quantum, remove from queue
-				if(queue_processes[inc_through_list].time_left <= time_quantum_parameter) 
+				//remove and shift all queue over and add to end 
+				Process temp;
+				temp.durration_of_process = 0;
+				j = inc_through_list;
+				while(j < inc_queu_proc-1)
 				{
-
-					st_for_fc_fs += queue_processes[inc_through_list].time_left;
-					queue_processes[inc_through_list].time_left = 0;
-
-					//find end time
-					int i = find_inc_in_list(list_of_process
-						, queue_processes[inc_through_list].arrival_time
-						, size_of_process_list);
-
-					list_of_process[i].end_time = st_for_fc_fs;
-
-					//If any new processes have been allowed add them to the queue now
-					inc_list = start_of_queue;
-					while(inc_list < size_of_process_list)
-					{
-						//make sure that the processes is not already on the list
-						if(list_of_process[inc_list].arrival_time <= st_for_fc_fs 
-							&& check_list_for_value(list_of_process, inc_list, size_of_process_list))
-						{
-
-							j = inc_queu_proc;
-							queue_processes[inc_queu_proc] = list_of_process[inc_list];
-
-							inc_queu_proc++;
-							start_of_queue++;	
-						}
-						inc_list++;
-					}
-
-					//remove and shift all queue over and add to end 
-					Process temp;
-					temp.durration_of_process = 0;
-					j = inc_through_list;
-					while(j < inc_queu_proc-1)
-					{
-						queue_processes[j] = queue_processes[j+1];
-						++j;
-					}
-					queue_processes[inc_queu_proc-1] = temp;
-
-					inc_queu_proc--; //shorten queue
-					inc_processes++; //tell loop 1 less process
+					queue_processes[j] = queue_processes[j+1];
+					++j;
 				}
-				else // if larger time then quantum, move object to end
+				queue_processes[inc_queu_proc-1] = temp;
+
+				inc_queu_proc--; //shorten queue
+				inc_processes++; //tell loop 1 less process
+			}
+			else // if larger time then quantum, move object to end
+			{
+				queue_processes[inc_through_list].time_left -= time_quantum_parameter;
+				st_for_fc_fs += time_quantum_parameter;
+
+				//waiting time
+				if(queue_processes[inc_through_list].first_started)
 				{
-					queue_processes[inc_through_list].time_left -= time_quantum_parameter;
-					st_for_fc_fs += time_quantum_parameter;
+					queue_processes[inc_through_list].waiting_time = st_for_fc_fs - 
+					queue_processes[inc_through_list].durration_of_process;
+				}
 
-					//waiting time
-					if(queue_processes[inc_through_list].first_started)
+				//If any new processes have been allowed add them to the queue now
+				inc_list = start_of_queue;
+				while(inc_list < size_of_process_list)
+				{
+					//make sure that the processes is not already on the list
+					if(list_of_process[inc_list].arrival_time <= st_for_fc_fs 
+						&& check_list_for_value(list_of_process, inc_list, size_of_process_list))
 					{
-						queue_processes[inc_through_list].waiting_time = st_for_fc_fs - 
-						queue_processes[inc_through_list].durration_of_process;
-					}
-
-					//If any new processes have been allowed add them to the queue now
-					inc_list = start_of_queue;
-					while(inc_list < size_of_process_list)
-					{
-						//make sure that the processes is not already on the list
-						if(list_of_process[inc_list].arrival_time <= st_for_fc_fs 
-							&& check_list_for_value(list_of_process, inc_list, size_of_process_list))
+						j = inc_queu_proc;
+						/*while(j > 0)
 						{
-
-							j = inc_queu_proc;
-							/*while(j > 0)
-							{
 								queue_processes[j] = queue_processes[j-1];
 								j--;
 							}*/
-							queue_processes[inc_queu_proc] = list_of_process[inc_list];
+						queue_processes[inc_queu_proc] = list_of_process[inc_list];
 
-							inc_queu_proc++;
-							start_of_queue++;	
-						}
-						inc_list++;
+						inc_queu_proc++;
+						start_of_queue++;	
 					}
-
-					//move to end
-					Process temp = queue_processes[inc_through_list];
-					j = inc_through_list;
-					while(j < inc_queu_proc-1)
-					{
-						queue_processes[j] = queue_processes[j+1];
-						++j;
-					}
-					queue_processes[inc_queu_proc-1] = temp;
+					inc_list++;
 				}
 
+				//move to end
+				Process temp = queue_processes[inc_through_list];
+				j = inc_through_list;
+				while(j < inc_queu_proc-1)
+				{
+					queue_processes[j] = queue_processes[j+1];
+					++j;
+				}
+				queue_processes[inc_queu_proc-1] = temp;
+			}
 		}
-
 	}
-
 	find_averages(list_of_process, size_of_process_list);
 }
 
@@ -464,7 +459,6 @@ int main(int argc, char *argv[])
 
 	list_of_process = calloc(1, sizeof(Process)*j);
 	add_inputs_to_process_list(Input, list_of_process);
-
 
 	Process *list = calloc(1, sizeof(Process)*size_of_process_list);
 	Process *list1 = calloc(1, sizeof(Process)*size_of_process_list);
