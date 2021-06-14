@@ -7,7 +7,7 @@
 
 /* Created by: Ben Smith
  * Class: CS3060 X01 summer 2021 B1
- * Assignment: Project 4
+ * Assignment: Project 5
  */
 
 #define size_of_buffer 50
@@ -21,8 +21,6 @@ typedef struct process
 	int end_time;
 	int time_left;
 	int first_started;
-
-	int process_timer;
 	int waiting_time;
 
 } Process;
@@ -59,47 +57,17 @@ int find_averages(  Process *list_of_process
 	int i =0;
 	while(i < size_of_process_list)
 	{
-		/*printf("end: %d Arrive: %d durration: %d\n"
-		, list_of_process[i].end_time
-		, list_of_process[i].arrive_time
-		, list_of_process[i].durration_of_process); */
-
 		av_resp += (float) list_of_process[i].arrive_time - list_of_process[i].arrival_time;
 		av_ta += (float) list_of_process[i].end_time - list_of_process[i].arrival_time;
 		av_wait += (float) (list_of_process[i].end_time - list_of_process[i].arrival_time) - list_of_process[i].durration_of_process;
 		i++;
 	}
 
-	printf( "Avg. Resp.:%.2f", (double) (av_resp / size_of_process_list));
-	printf(", Avg. T.A.:%.2f", (double) (av_ta / size_of_process_list));
-	printf(", Avg. Wait:%.2f\n\n", ( double) (av_wait / size_of_process_list));
-}
-
-int find_averages_for_round_robin(  Process *list_of_process
-				  , int size_of_process_list)
-{
-	double av_resp = 0;
-	double av_ta = 0;
-	double av_wait = 0;
-
-	int i =0;
-	while(i < size_of_process_list)
-	{
-		/*printf("end: %d Arrival: %d durration: %d\n"
-		, list_of_process[i].end_time
-		, list_of_process[i].arrival_time
-		, list_of_process[i].durration_of_process); */
-
-		av_resp += (float) list_of_process[i].arrive_time - list_of_process[i].arrival_time;
-		av_ta += (float) list_of_process[i].end_time - list_of_process[i].arrival_time;
-		av_wait += (float) list_of_process[i].waiting_time;
-		i++;
-	}
-
 	printf( "Avg. Resp.: %.2f", (double) (av_resp / size_of_process_list));
 	printf(", Avg. T.A.: %.2f", (double) (av_ta / size_of_process_list));
-	printf(", Avg. Wait: %.2f\n", ( double) (av_wait / size_of_process_list));
+	printf(", Avg. Wait: %.2f\n\n", ( double) (av_wait / size_of_process_list));
 }
+
 
 int first_come_first_served(  Process *list_of_process
 						  	, int size_of_process_list)
@@ -143,8 +111,8 @@ int shortest_job_first_algorithm(  Process *list_of_process
 	//starting clock for the algorithm
 		//starting clock for the algorithm
 	st_for_fc_fs = 0; 
-
 	int inc_processes = 0;
+
 	while(inc_processes < size_of_process_list)
 	{
 		//find the process with the shortest length
@@ -211,20 +179,20 @@ int shortest_Remaining_algorithm(Process *list_of_process
 	printf("Shortest Remaining Time First\n");
 	//starting clock for the algorithm
 	st_for_fc_fs = 0; 
-
 	int inc_processes = 0;
+
 	while(inc_processes < size_of_process_list)
 	{
 
-		//find the process with the shortest length
+		
 		int inc_shortest_burst = 0;
 		int inc_of_shortest_burst = 0;
 		int shortest_burst_size = 99999;
 		int process_ready = 0;
 
+		//find the process with the shortest time
 		while(inc_shortest_burst < size_of_process_list)
 		{
-			//printf("Size is: %d\n", list_of_process[inc_shortest_burst].time_left);
 			if( list_of_process[inc_shortest_burst].time_left < shortest_burst_size &&
 				list_of_process[inc_shortest_burst].time_left != 0 &&
 				list_of_process[inc_shortest_burst].arrival_time <= st_for_fc_fs )
@@ -235,9 +203,7 @@ int shortest_Remaining_algorithm(Process *list_of_process
 			}
 			inc_shortest_burst++;
 		}
-		/*printf("Shortest is %d Time: %d\n", list_of_process[inc_of_shortest_burst].durration_of_process
-										  , st_for_fc_fs); */
-
+	
 		//start process
 		if(process_ready)
 		{
@@ -247,13 +213,9 @@ int shortest_Remaining_algorithm(Process *list_of_process
 				list_of_process[inc_of_shortest_burst].first_started = 1;
 			}
 
-			/*printf("Starting process %d at %d %d, arrival: %d Durration: %d\n", inc_processes, st_for_fc_fs
-				,list_of_process[inc_processes].arrive_time + list_of_process[inc_processes].durration_of_process
-				,list_of_process[inc_processes].arrival_time
-				,list_of_process[inc_processes].durration_of_process);	*/		
-
 			//wait for process to go one cycle
 			list_of_process[inc_of_shortest_burst].time_left--;
+			st_for_fc_fs++;
 			
 			//now if process has completed its desired time
 			if(list_of_process[inc_of_shortest_burst].time_left == 0)
@@ -263,8 +225,8 @@ int shortest_Remaining_algorithm(Process *list_of_process
 			}
 			
 		}
-		
-		st_for_fc_fs++;
+		else
+			st_for_fc_fs++;
 
 	}
 
@@ -305,8 +267,6 @@ int round_robin_algorithm(Process *list_of_process
 	int start_of_queue = 0;
 	int j;
 
-	st_for_fc_fs = 0; 
-
 	int inc_processes = 0;
 	while(inc_processes < size_of_process_list)
 	{
@@ -319,8 +279,8 @@ int round_robin_algorithm(Process *list_of_process
 				&& check_list_for_value(list_of_process, inc_list, size_of_process_list))
 			{
 
-				/*j = inc_queu_proc;
-				while(j > 0)
+				j = inc_queu_proc;
+				/*while(j > 0)
 				{
 					queue_processes[j] = queue_processes[j-1];
 					j--;
@@ -338,21 +298,10 @@ int round_robin_algorithm(Process *list_of_process
 			st_for_fc_fs++;
 		else
 		{
-			/*for(*/int inc_through_list = 0; /*inc_through_list < inc_queu_proc;)
-			{*/
+			int inc_through_list = 0;
+			
 
-				//printf("Inc: %d Time: %d\n", inc_through_list, st_for_fc_fs );
-				for(int inc_through = 0; inc_through < inc_queu_proc; inc_through++)
-				{
-					/*printf("queue proc[%d]: %d %d Time %d, Time left %d\n"
-						, inc_through
-						, queue_processes[inc_through].arrival_time
-						, queue_processes[inc_through].durration_of_process
-						, st_for_fc_fs
-						, queue_processes[inc_through].time_left);*/
-				}
-				
-
+				//find start time of process in the front of queue
 				if(queue_processes[inc_through_list].first_started == 0)
 				{
 					int i = find_inc_in_list(list_of_process
@@ -361,10 +310,6 @@ int round_robin_algorithm(Process *list_of_process
 					
 					if(list_of_process[i].first_started != 1)
 					{
-						/*printf("Process %d first arrived at %d\n"
-						, list_of_process[i].arrival_time
-						, st_for_fc_fs);*/
-
 						list_of_process[i].arrive_time = st_for_fc_fs;
 						list_of_process[i].first_started = 1;
 					}
@@ -384,11 +329,25 @@ int round_robin_algorithm(Process *list_of_process
 
 					list_of_process[i].end_time = st_for_fc_fs;
 
-					/*printf("removed process1[%d] %d\n"
-						, inc_through_list
-						, queue_processes[inc_through_list].arrival_time);*/
+					//If any new processes have been allowed add them to the queue now
+					inc_list = start_of_queue;
+					while(inc_list < size_of_process_list)
+					{
+						//make sure that the processes is not already on the list
+						if(list_of_process[inc_list].arrival_time <= st_for_fc_fs 
+							&& check_list_for_value(list_of_process, inc_list, size_of_process_list))
+						{
 
-					//remove and shift all queue over left
+							j = inc_queu_proc;
+							queue_processes[inc_queu_proc] = list_of_process[inc_list];
+
+							inc_queu_proc++;
+							start_of_queue++;	
+						}
+						inc_list++;
+					}
+
+					//remove and shift all queue over and add to end 
 					Process temp;
 					temp.durration_of_process = 0;
 					j = inc_through_list;
@@ -412,6 +371,29 @@ int round_robin_algorithm(Process *list_of_process
 					{
 						queue_processes[inc_through_list].waiting_time = st_for_fc_fs - 
 						queue_processes[inc_through_list].durration_of_process;
+					}
+
+					//If any new processes have been allowed add them to the queue now
+					inc_list = start_of_queue;
+					while(inc_list < size_of_process_list)
+					{
+						//make sure that the processes is not already on the list
+						if(list_of_process[inc_list].arrival_time <= st_for_fc_fs 
+							&& check_list_for_value(list_of_process, inc_list, size_of_process_list))
+						{
+
+							j = inc_queu_proc;
+							/*while(j > 0)
+							{
+								queue_processes[j] = queue_processes[j-1];
+								j--;
+							}*/
+							queue_processes[inc_queu_proc] = list_of_process[inc_list];
+
+							inc_queu_proc++;
+							start_of_queue++;	
+						}
+						inc_list++;
 					}
 
 					//move to end
@@ -449,14 +431,6 @@ int add_inputs_to_process_list(input_parameter input , Process *List_of_process 
 		incr_in_proc++;
 	} 
 
-	/*	int y = 0;
-	while(y < input.size_of_input/2)
-	{
-		printf("Arrival: %d durration: %d\n"
-			, List_of_process[y].arrival_time
-			, List_of_process[y].durration_of_process);
-		y++;
-	}*/
 }
 
 int main(int argc, char *argv[])
@@ -465,6 +439,7 @@ int main(int argc, char *argv[])
 	input_parameter Input;
 	Input.size_of_input = 0;
 
+	//check for 2nd argument for time quantum 
 	if(argc < 2)
 	{
 		//printf("Error no time time_quantum_parameter specified using default 100ms\n");
@@ -473,6 +448,7 @@ int main(int argc, char *argv[])
 	else
 		time_quantum_parameter = atoi(argv[1]);
 
+	//read in input
 	int buffer[size_of_buffer];
 	int j = 0;
 	while(fscanf(stdin
@@ -509,4 +485,10 @@ int main(int argc, char *argv[])
 	round_robin_algorithm(list3, size_of_process_list);
 
 	free(list_of_process);
+	free(list);
+	free(list1);
+	free(list2);
+	free(list3);
+
+	return 0;
 }
