@@ -80,14 +80,10 @@ int first_come_first_served(  Process *list_of_process
 	int inc_processes = 0;
 	while(inc_processes < size_of_process_list)
 	{
-
+		
 		if(st_for_fc_fs >= list_of_process[inc_processes].arrival_time  )
 		{
 			list_of_process[inc_processes].arrive_time = st_for_fc_fs;
-			/*printf("Starting process %d at %d %d, arrival: %d Durration: %d\n", inc_processes, st_for_fc_fs
-				,list_of_process[inc_processes].arrive_time + list_of_process[inc_processes].durration_of_process
-				,list_of_process[inc_processes].arrival_time
-				,list_of_process[inc_processes].durration_of_process);*/	
 
 			//if process is finished move to the next one
 			while(( list_of_process[inc_processes].arrive_time + list_of_process[inc_processes].durration_of_process) 
@@ -115,6 +111,7 @@ int shortest_job_first_algorithm(  Process *list_of_process
 
 	while(inc_processes < size_of_process_list)
 	{
+
 		//find the process with the shortest length
 		int inc_shortest_burst = 0;
 		int inc_of_shortest_burst = 0;
@@ -123,7 +120,6 @@ int shortest_job_first_algorithm(  Process *list_of_process
 
 		while(inc_shortest_burst < size_of_process_list)
 		{
-			//printf("Size is: %d\n", list_of_process[inc_shortest_burst].time_left);
 			if( list_of_process[inc_shortest_burst].time_left < shortest_burst_size &&
 				list_of_process[inc_shortest_burst].time_left != 0 &&
 				list_of_process[inc_shortest_burst].arrival_time <= st_for_fc_fs )
@@ -134,8 +130,6 @@ int shortest_job_first_algorithm(  Process *list_of_process
 			}
 			inc_shortest_burst++;
 		}
-		/*printf("Shortest is %d Time: %d\n", list_of_process[inc_of_shortest_burst].durration_of_process
-										  , st_for_fc_fs); */
 
 		//start process
 		if(process_ready)
@@ -145,11 +139,6 @@ int shortest_job_first_algorithm(  Process *list_of_process
 				list_of_process[inc_of_shortest_burst].arrive_time = st_for_fc_fs;
 				list_of_process[inc_of_shortest_burst].first_started = 1;
 			}
-
-			/*printf("Starting process %d at %d %d, arrival: %d time: %d\n", inc_of_shortest_burst, st_for_fc_fs
-				,list_of_process[inc_of_shortest_burst].arrive_time + list_of_process[inc_of_shortest_burst].durration_of_process
-				,list_of_process[inc_of_shortest_burst].arrival_time
-				,list_of_process[inc_of_shortest_burst].time_left);		*/	
 
 			//wait for process to go one cycle
 			while(list_of_process[inc_of_shortest_burst].time_left > 0)
@@ -184,7 +173,6 @@ int shortest_Remaining_algorithm(Process *list_of_process
 	while(inc_processes < size_of_process_list)
 	{
 
-		
 		int inc_shortest_burst = 0;
 		int inc_of_shortest_burst = 0;
 		int shortest_burst_size = 99999;
@@ -280,11 +268,6 @@ int round_robin_algorithm(Process *list_of_process
 			{
 
 				j = inc_queu_proc;
-				/*while(j > 0)
-				{
-					queue_processes[j] = queue_processes[j-1];
-					j--;
-				}*/
 				queue_processes[inc_queu_proc] = list_of_process[inc_list];
 
 				inc_queu_proc++;
@@ -365,27 +348,15 @@ int round_robin_algorithm(Process *list_of_process
 				queue_processes[inc_through_list].time_left -= time_quantum_parameter;
 				st_for_fc_fs += time_quantum_parameter;
 
-				//waiting time
-				if(queue_processes[inc_through_list].first_started)
-				{
-					queue_processes[inc_through_list].waiting_time = st_for_fc_fs - 
-					queue_processes[inc_through_list].durration_of_process;
-				}
-
 				//If any new processes have been allowed add them to the queue now
 				inc_list = start_of_queue;
 				while(inc_list < size_of_process_list)
 				{
-					//make sure that the processes is not already on the list
+					//make sure that the processes is not already on the list after changing the clock
 					if(list_of_process[inc_list].arrival_time <= st_for_fc_fs 
 						&& check_list_for_value(list_of_process, inc_list, size_of_process_list))
 					{
 						j = inc_queu_proc;
-						/*while(j > 0)
-						{
-								queue_processes[j] = queue_processes[j-1];
-								j--;
-							}*/
 						queue_processes[inc_queu_proc] = list_of_process[inc_list];
 
 						inc_queu_proc++;
@@ -436,10 +407,7 @@ int main(int argc, char *argv[])
 
 	//check for 2nd argument for time quantum 
 	if(argc < 2)
-	{
-		//printf("Error no time time_quantum_parameter specified using default 100ms\n");
 		time_quantum_parameter = 100;
-	}
 	else
 		time_quantum_parameter = atoi(argv[1]);
 
